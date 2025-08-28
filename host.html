@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>BDSM Trivia - Host</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* --- BASE / BACKGROUND --- */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-image: url('background.jpg'); /* replace with your image */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    h1 { text-align: center; margin: 16px 0 8px; }
+    .hidden { display: none; }
+
+    /* --- TOP CONTROL BAR (centered buttons so they don’t collide with score box) --- */
+    .top-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .top-controls button {
+      padding: 10px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #fff;
+      background: #007bff;
+    }
+    .top-controls button:hover { background: #0069d9; }
+
+    /* --- TEAM SIGN-UP (UPPER-LEFT) --- */
+    .team-signup {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.6);
+      padding: 14px;
+      border-radius: 10px;
+      width: 280px;
+      box-sizing: border-box;
+    }
+    .team-signup h3 { margin: 0 0 10px; font-size: 18px; }
+    .team-signup .row {
+      display: flex; gap: 6px; margin-bottom: 8px;
+    }
+    .team-signup input[type="text"] {
+      flex: 1;
+      min-width: 0;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+    }
+    .team-signup input[type="number"] {
+      width: 80px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+    }
+    .team-signup button {
+      padding: 8px 10px;
+      border: none;
+      border-radius: 6px;
+      background: #28a745;
+      color: #fff;
+      cursor: pointer;
+    }
+    .team-signup button:hover { background: #218838; }
+    .team-signup ul {
+      list-style: none; padding-left: 0; margin: 10px 0 0;
+      max-height: 220px; overflow-y: auto;
+    }
+    .team-signup li {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 8px; margin-bottom: 6px; background: rgba(255,255,255,0.06); border-radius: 6px;
+      font-size: 14px;
+    }
+    .delete-btn {
+      padding: 4px 8px; font-size: 12px; border: none; border-radius: 6px; cursor: pointer;
+      background: #dc3545; color: #fff;
+    }
+    .delete-btn:hover { background: #c82333; }
+
+    /* --- SCORE TRACKER (UPPER-RIGHT) --- */
+    .score-box {
+      position: absolute;
+      top: 110px;     /* lowered so it doesn’t overlap the title */
+      right: 20px;
+      background: rgba(0,0,0,0.65);
+      padding: 14px;
+      border-radius: 10px;
+      width: 460px;
+      max-height: 60vh;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    .score-box h3 { margin: 0 0 10px; }
+    .team-score-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+      flex-wrap: nowrap;
+    }
+    .team-name {
+      min-width: 150px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-weight: bold;
+    }
+    .score-buttons {
+      display: flex; gap: 6px; flex-wrap: nowrap;
+    }
+    .score-button {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: none; color: #fff; font-weight: 700; cursor: pointer; font-size: 14px;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .green { background: #28a745; }
+    .green:hover { background: #218838; }
+    .red { background: #dc3545; }
+    .red:hover { background: #c82333; }
+    .score-display { margin-left: auto; font-weight: 700; }
+
+    /* --- GAME CONTROLS / QUESTION AREA (CENTER) --- */
+    .game-controls {
+      /* push content down so it doesn’t overlap top UI */
+      padding-top: 220px;
+      max-width: 1100px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    #roundName { font-size: 28px; margin: 0 12px 14px; }
+    #currentQuestion { font-size: 28px; margin: 12px; }
+    #currentAnswer { font-size: 28px; margin: 12px; }
+
+    .nav-buttons {
+      margin-top: 12px;
+      display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+    }
+    .nav-buttons button {
+      padding: 10px 16px; font-size: 16px; border: none; border-radius: 6px; cursor: pointer; color: #fff;
+      background: rgba(0,0,0,0.5);
+    }
+    .nav-buttons button:hover { background: rgba(0,0,0,0.65); }
+
+    /* Make buttons shrink a bit on small screens */
+    @media (max-width: 1200px) {
+      .score-box { width: 420px; }
+      .team-name { min-width: 130px; max-width:130px; }
+      .score-button { width: 30px; height: 30px; font-size: 13px; }
+    }
+    @media (max-width: 980px) {
+      .score-box { width: 380px; }
+      .team-name { min-width: 120px; max-width:120px; }
+      .score-button { width: 28px; height: 28px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>BDSM Trivia - Host</h1>
+
+  <!-- Centered control buttons -->
+  <div class="top-controls">
+    <button id="launchRulesBtn" title="Opens rules for players in a new tab">Launch Rules (Players)</button>
+    <button id="openHostRulesBtn" title="Opens rules in host mode in a new tab">Open Host Rules</button>
+    <button id="resetGameStartedBtn" title="Clears game-start flag so players return to rules if refreshed">Reset ‘Game Started’</button>
+  </div>
+
+  <!-- Team Sign-Up (UL) -->
+  <div class="team-signup">
+    <h3>Team Sign-Up</h3>
+    <div class="row">
+      <input type="text" id="teamNameInput" placeholder="Team Name" />
+      <input type="number" id="teamPlayersInput" placeholder="#Players" min="1" />
+    </div>
+    <button id="addTeam">Add Team</button>
+    <ul id="teamList"></ul>
+  </div>
+
+  <!-- Score Tracker (UR) -->
+  <div class="score-box">
+    <h3>Score Tracker</h3>
+    <div id="scoreList"></div>
+  </div>
+
+  <!-- Game Controls / Q&A -->
+  <div class="game-controls">
+    <h2 id="roundName">Loading questions...</h2>
+    <h2 id="currentQuestion"></h2>
+    <p id="currentAnswer" class="hidden"></p>
+
+    <div class="nav-buttons">
+      <button id="prev">Previous Question</button>
+      <button id="showAnswer">Show Answer</button>
+      <button id="next">Next Question</button>
+    </div>
+  </div>
+
+  <script>
+    /***********************
+     * FALLBACK QUESTION DATA
+     * Used automatically if fetch('questions.json') fails
+     ***********************/
+    const defaultGameData = [
+      {
+        round: "Round 1",
+        questions: [
+          { question: "In BDSM culture, the most common “safe word” used internationally is what fruit?", answer: "Pineapple" },
+          { question: "True or False: A real porn parody exists called \"Game of Bones: Winter Came Everywhere\".", answer: "True" },
+          { question: "What kind of toy is a “Hitachi Magic Wand” originally marketed as?", answer: "A back massager" }
+        ]
+      },
+      {
+        round: "Round 2",
+        questions: [
+          { question: "In fetish terminology, “vorarephilia” is a fantasy about what?", answer: "Being eaten or eating someone" },
+          { question: "Which actress admitted on Ellen that she owns a red room “just like in Fifty Shades of Grey”?", answer: "Dakota Johnson" },
+          { question: "In a classic Dominant/submissive dynamic, the abbreviation “SSC” stands for what phrase?", answer: "Safe, Sane, Consensual" }
+        ]
+      },
+      {
+        round: "Round 3",
+        questions: [
+          { question: "Who was the first porn star to be given a star on the Hollywood Walk of Fame?", answer: "Jenna Jameson" },
+          { question: "True or False: Orgasms can temporarily relieve migraine headaches.", answer: "True" },
+          { question: "What does the fetish acronym “CBT” stand for?", answer: "Cock and Ball Torture" }
+        ]
+      },
+      {
+        round: "Halftime – Songs About Sex",
+        questions: [
+          { question: "“I Wanna Sex ___” – Color Me Badd", answer: "You Up" },
+          { question: "“Closer” – Nine Inch ___", answer: "Nails" },
+          { question: "“Let’s Talk About ___” – Salt-N-Pepa", answer: "Sex" },
+          { question: "“Pour Some ___ On Me” – Def Leppard", answer: "Sugar" }
+        ]
+      },
+      {
+        round: "Round 4",
+        questions: [
+          { question: "The 2015 film \"The Duke of Burgundy\" is an art-house movie centered entirely on what kink?", answer: "Lesbian BDSM (dominance & submission)" },
+          { question: "The red-light district in Amsterdam is famously known as what?", answer: "De Wallen" },
+          { question: "True or False: There is a real porn actress named Ivana Bang.", answer: "True" }
+        ]
+      },
+      {
+        round: "Round 5",
+        questions: [
+          { question: "What’s the proper name for the “X-shaped” frame often used to restrain submissives in BDSM play?", answer: "St. Andrew’s Cross" },
+          { question: "In urban dictionary terms, a “pearl necklace” refers to what sexual act?", answer: "Ejaculating on a partner’s neck/chest" },
+          { question: "A “pony play” submissive often wears what item to complete their role?", answer: "A bit or bridle (horse gear)" }
+        ]
+      },
+      {
+        round: "Round 6",
+        questions: [
+          { question: "In 2023, OnlyFans star Amouranth admitted she makes how much per month from the platform: $1M, $3M, or $5M?", answer: "$1M+ (about $1.5M)" },
+          { question: "What’s the safe word used by Anastasia Steele in Fifty Shades of Grey?", answer: "Red" },
+          { question: "What’s the term for rubbing genitals against someone in public without consent (often on trains)?", answer: "Frotteurism" }
+        ]
+      },
+      {
+        round: "Final Question",
+        questions: [
+          { question: "Who Am I? Famous dominatrix turned media personality. Ran a Manhattan dungeon, wrote \"Mistress of the Underground\", appeared on Howard Stern and in documentaries. Who am I?", answer: "Mistress Tara Indiana (accept Mistress Velvet depending on audience)" }
+        ]
+      },
+      {
+        round: "Tie-Breaker",
+        questions: [
+          { question: "How many vibrators does the world’s largest known collection include?", answer: "Over 2,000 (closest guess wins)" }
+        ]
+      },
+      {
+        round: "Extras (Optional)",
+        questions: [
+          { question: "What does the fetish acronym “DDLG” stand for?", answer: "Daddy Dom/Little Girl" },
+          { question: "Multiple Choice: “Choking for pleasure” is technically called: A) Hypoxia B) Breath Play C) Aerophilia D) Smothering", answer: "B) Breath Play" },
+          { question: "Which rapper launched his own line of sex toys in 2021: Snoop Dogg, 50 Cent, or Lil Wayne?", answer: "50 Cent" }
+        ]
+      }
+    ];
+
+    /***********************
+     * STATE
+     ***********************/
+    let gameData = [];
+    let currentRoundIndex = 0;
+    let currentQuestionIndex = 0;
+
+    // Teams in localStorage: [{ name, players, score }]
+    let teams = [];
+    try {
+      teams = JSON.parse(localStorage.getItem('teams') || '[]');
+      if (!Array.isArray(teams)) teams = [];
+    } catch {
+      teams = [];
+    }
+
+    /***********************
+     * INIT
+     ***********************/
+    function safeSetLS(key, value) {
+      try { localStorage.setItem(key, value); } catch {}
+    }
+
+    function loadQuestions() {
+      // Try to fetch questions.json; fallback to defaultGameData
+      return fetch('questions.json', { cache: 'no-store' })
+        .then(r => {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(json => {
+          if (!Array.isArray(json) || !json.length) throw new Error('Bad JSON shape');
+          return json;
+        })
+        .catch(err => {
+          console.warn('Falling back to built-in questions. Reason:', err);
+          return defaultGameData;
+        });
+    }
+
+    function updateHostUI() {
+      if (!gameData.length) return;
+      const round = gameData[currentRoundIndex];
+      const q = round.questions[currentQuestionIndex];
+
+      const rn = document.getElementById('roundName');
+      const cq = document.getElementById('currentQuestion');
+      const ca = document.getElementById('currentAnswer');
+
+      rn.textContent = `${round.round} - Question ${currentQuestionIndex + 1}`;
+      cq.textContent = q.question;
+      ca.textContent = q.answer;
+      ca.classList.add('hidden');
+
+      safeSetLS('gameData', JSON.stringify(gameData));
+      safeSetLS('currentRound', String(currentRoundIndex));
+      safeSetLS('currentQuestion', String(currentQuestionIndex));
+      safeSetLS('showAnswer', 'false');
+    }
+
+    function nextQuestion() {
+      const round = gameData[currentRoundIndex];
+      if (currentQuestionIndex < round.questions.length - 1) {
+        currentQuestionIndex++;
+      } else if (currentRoundIndex < gameData.length - 1) {
+        currentRoundIndex++;
+        currentQuestionIndex = 0;
+      }
+      updateHostUI();
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+      } else if (currentRoundIndex > 0) {
+        currentRoundIndex--;
+        currentQuestionIndex = gameData[currentRoundIndex].questions.length - 1;
+      }
+      updateHostUI();
+    }
+
+    function toggleAnswer() {
+      const el = document.getElementById('currentAnswer');
+      el.classList.toggle('hidden');
+      safeSetLS('showAnswer', String(!el.classList.contains('hidden')));
+    }
+
+    function renderTeams() {
+      // Sign-up list
+      const teamList = document.getElementById('teamList');
+      teamList.innerHTML = '';
+      teams.forEach((team, idx) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${team.name} — ${team.players} player(s)</span>`;
+        const del = document.createElement('button');
+        del.className = 'delete-btn';
+        del.textContent = 'Delete';
+        del.addEventListener('click', () => {
+          teams.splice(idx, 1);
+          safeSetLS('teams', JSON.stringify(teams));
+          renderTeams();
+        });
+        li.appendChild(del);
+        teamList.appendChild(li);
+      });
+
+      // Score tracker
+      const scoreList = document.getElementById('scoreList');
+      scoreList.innerHTML = '';
+      teams.forEach(team => {
+        const row = document.createElement('div');
+        row.className = 'team-score-row';
+
+        const name = document.createElement('div');
+        name.className = 'team-name';
+        name.textContent = team.name;
+        row.appendChild(name);
+
+        const buttons = document.createElement('div');
+        buttons.className = 'score-buttons';
+
+        [5,3,1].forEach(p => {
+          const b = document.createElement('button');
+          b.className = 'score-button green';
+          b.textContent = p;
+          b.title = `+${p}`;
+          b.addEventListener('click', () => {
+            team.score = (team.score || 0) + p;
+            safeSetLS('teams', JSON.stringify(teams));
+            renderTeams();
+          });
+          buttons.appendChild(b);
+        });
+        [5,3,1].forEach(p => {
+          const b = document.createElement('button');
+          b.className = 'score-button red';
+          b.textContent = p;
+          b.title = `-${p}`;
+          b.addEventListener('click', () => {
+            team.score = Math.max(0, (team.score || 0) - p);
+            safeSetLS('teams', JSON.stringify(teams));
+            renderTeams();
+          });
+          buttons.appendChild(b);
+        });
+
+        const score = document.createElement('div');
+        score.className = 'score-display';
+        score.textContent = `Score: ${team.score || 0}`;
+
+        row.appendChild(buttons);
+        row.appendChild(score);
+        scoreList.appendChild(row);
+      });
+    }
+
+    /***********************
+     * EVENT WIRING
+     ***********************/
+    document.getElementById('addTeam').addEventListener('click', () => {
+      const nameEl = document.getElementById('teamNameInput');
+      const playersEl = document.getElementById('teamPlayersInput');
+      const name = (nameEl.value || '').trim();
+      const players = Math.max(1, parseInt(playersEl.value, 10) || 1);
+      if (!name) return;
+
+      teams.push({ name, players, score: 0 });
+      safeSetLS('teams', JSON.stringify(teams));
+      nameEl.value = '';
+      playersEl.value = '';
+      renderTeams();
+    });
+
+    // Add with Enter on team name
+    document.getElementById('teamNameInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('addTeam').click();
+    });
+    document.getElementById('teamPlayersInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('addTeam').click();
+    });
+
+    document.getElementById('prev').addEventListener('click', prevQuestion);
+    document.getElementById('next').addEventListener('click', nextQuestion);
+    document.getElementById('showAnswer').addEventListener('click', toggleAnswer);
+
+    // Launch rules for players (no Start button)
+    let playerRulesWindow = null;
+    document.getElementById('launchRulesBtn').addEventListener('click', () => {
+      if (!playerRulesWindow || playerRulesWindow.closed) {
+        playerRulesWindow = window.open('rules.html', '_blank', 'width=1200,height=800');
+        if (!playerRulesWindow) alert('Popup blocked. Allow popups for this site.');
+      } else {
+        playerRulesWindow.focus();
+      }
+    });
+
+    // Open host rules (has Start Game button)
+    document.getElementById('openHostRulesBtn').addEventListener('click', () => {
+      const w = window.open('rules.html?host=true', '_blank', 'width=1200,height=800');
+      if (!w) alert('Popup blocked. Allow popups for this site.');
+    });
+
+    // Reset the "game started" flag if you want to re-show rules on player screens on next session
+    document.getElementById('resetGameStartedBtn').addEventListener('click', () => {
+      safeSetLS('gameStarted', 'false');
+      alert('Game-start flag reset.');
+    });
+
+    /***********************
+     * BOOT
+     ***********************/
+    loadQuestions().then(data => {
+      gameData = data;
+      // If a previous position exists, keep it; otherwise start at 0
+      const savedRound = parseInt(localStorage.getItem('currentRound') || '0', 10);
+      const savedQuestion = parseInt(localStorage.getItem('currentQuestion') || '0', 10);
+      if (!isNaN(savedRound) && savedRound >= 0 && savedRound < gameData.length) {
+        currentRoundIndex = savedRound;
+        if (!isNaN(savedQuestion) && savedQuestion >= 0 && savedQuestion < gameData[currentRoundIndex].questions.length) {
+          currentQuestionIndex = savedQuestion;
+        }
+      }
+      updateHostUI();
+      renderTeams();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BDSM Trivia - Rules</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('background.jpg'); /* replace with your image */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 4em;
+      margin-bottom: 40px;
+    }
+
+    ul {
+      font-size: 2em;
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin: 20px 0;
+    }
+
+    #startGameBtn {
+      margin-top: 50px;
+      padding: 20px 40px;
+      font-size: 2em;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      background-color: #28a745;
+      color: white;
+    }
+
+    #startGameBtn:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <h1>BDSM Trivia Night Rules</h1>
+  <ul>
+    <li>Each team selects a point wager (5, 3, 1) per question.</li>
+    <li>Correct answer adds points, incorrect subtracts.</li>
+    <li>Use “Next Question” to move through the rounds.</li>
+    <li>Teams can be added or removed at any time.</li>
+  </ul>
+
+  <!-- Host-only button -->
+  <button id="startGameBtn">Start Game</button>
+
+  <script>
+    // Detect host mode from URL param
+    const urlParams = new URLSearchParams(window.location.search);
+    const isHost = urlParams.get('host') === 'true';
+
+    // Hide button for players
+    if(!isHost){
+      document.getElementById('startGameBtn').style.display = 'none';
+    }
+
+    // Host clicks start game
+    document.getElementById('startGameBtn').addEventListener('click', () => {
+      // Signal players to start
+      localStorage.setItem('gameStarted', 'true');
+      window.location.href = 'host.html';
+    });
+
+    // Player view: automatically redirect when game starts
+    if(!isHost){
+      window.addEventListener('storage', (e) => {
+        if(e.key === 'gameStarted' && e.newValue === 'true'){
+          window.location.href = 'index.html';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

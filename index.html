@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BDSM Trivia - Player View</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('background.jpg'); /* same background as host */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    #roundName {
+      font-size: 3em;
+      margin-bottom: 30px;
+    }
+
+    #currentQuestion {
+      font-size: 2.5em;
+      margin-bottom: 30px;
+    }
+
+    #currentAnswer {
+      font-size: 2.5em;
+      margin-top: 20px;
+    }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1 id="roundName">Loading Round...</h1>
+  <h2 id="currentQuestion">Loading Question...</h2>
+  <p id="currentAnswer" class="hidden"></p>
+
+  <script>
+    // --- GET HOST DATA FROM localStorage ---
+    function updatePlayerView() {
+      const gameData = JSON.parse(localStorage.getItem('gameData') || '[]');
+      const currentRoundIndex = parseInt(localStorage.getItem('currentRound') || '0');
+      const currentQuestionIndex = parseInt(localStorage.getItem('currentQuestion') || '0');
+      const showAnswer = localStorage.getItem('showAnswer') === 'true';
+
+      if(gameData.length === 0) return;
+
+      const round = gameData[currentRoundIndex];
+      const questionObj = round.questions[currentQuestionIndex];
+
+      document.getElementById('roundName').textContent = `${round.round} - Question ${currentQuestionIndex + 1}`;
+      document.getElementById('currentQuestion').textContent = questionObj.question;
+
+      const answerEl = document.getElementById('currentAnswer');
+      answerEl.textContent = questionObj.answer;
+      if(showAnswer){
+        answerEl.classList.remove('hidden');
+      } else {
+        answerEl.classList.add('hidden');
+      }
+    }
+
+    // Initial load
+    updatePlayerView();
+
+    // --- LISTEN FOR HOST UPDATES ---
+    window.addEventListener('storage', (e) => {
+      if(['currentRound','currentQuestion','showAnswer','gameData'].includes(e.key)){
+        updatePlayerView();
+      }
+    });
+
+    // --- AUTO-START WHEN HOST STARTS GAME ---
+    window.addEventListener('storage', (e) => {
+      if(e.key === 'gameStarted' && e.newValue === 'true'){
+        updatePlayerView();
+      }
+    });
+  </script>
+</body>
+</html>
