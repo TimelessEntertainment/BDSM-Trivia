@@ -27,7 +27,10 @@ const nextScoreBtn = document.getElementById('nextScoreBtn');
 // --- Load Questions ---
 function loadQuestions(file) {
   return fetch(file)
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error("Questions file not found");
+      return res.json();
+    })
     .then(data => {
       gameData = data;
       localStorage.setItem('gameData', JSON.stringify(gameData));
@@ -38,6 +41,11 @@ function loadQuestions(file) {
       localStorage.setItem('showAnswer', 'false');
       updateHost();
       launchGameBtn.disabled = false; // enable Launch Game
+    })
+    .catch(err => {
+      console.error("Error loading questions:", err);
+      alert("Could not load questions. Check the JSON file exists and is named correctly.");
+      launchGameBtn.disabled = true;
     });
 }
 
@@ -173,4 +181,3 @@ nextScoreBtn.addEventListener('click', () => {
 
 // --- Initial Load ---
 loadQuestions(questionSetSelect.value);
-
