@@ -4,156 +4,123 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BDSM Trivia Host</title>
-<link rel="stylesheet" href="style.css">
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: url('background.jpg') no-repeat center center fixed;
-    background-size: cover;
-    color: white;
-  }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: url('background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+}
 
-  /* Question Set Dropdown */
-  #questionSetContainer {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1000;
-    font-size: 16px;
-    background: rgba(0,0,0,0.6);
-    padding: 5px 8px;
-    border-radius: 5px;
-  }
+/* Question Set Dropdown */
+#questionSetContainer {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  font-size: 16px;
+  background: rgba(0,0,0,0.6);
+  padding: 5px 8px;
+  border-radius: 5px;
+}
 
-  /* Launch Game Button */
-  #launchContainer {
-    position: absolute;
-    top: 120px;
-    left: 10px;
-    z-index: 1000;
-  }
+/* Launch Buttons */
+#launchContainer {
+  position: absolute;
+  top: 60px;
+  left: 10px;
+  z-index: 1000;
+}
+#launchContainer button {
+  padding: 8px 12px;
+  margin-right: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
 
-  #launchContainer button {
-    padding: 8px 12px;
-    font-size: 14px;
-    cursor: pointer;
-  }
+/* Team Signup */
+#teamContainer {
+  position: absolute;
+  top: 120px;
+  left: 10px;
+  width: 180px;
+  z-index: 1000;
+  background: rgba(0,0,0,0.6);
+  padding: 10px;
+  border-radius: 8px;
+}
+#teamContainer input, #teamContainer button {
+  margin: 2px 0;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+#teamsList { margin-top: 10px; }
+.teamItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+.removeTeamBtn {
+  background: red;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
 
-  /* Team Signup */
-  #teamContainer {
-    position: absolute;
-    top: 180px;
-    left: 10px;
-    width: 180px;
-    z-index: 1000;
-    background: rgba(0,0,0,0.6);
-    padding: 10px;
-    border-radius: 8px;
-  }
+/* Score Tracker */
+#scoreContainer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: rgba(0,0,0,0.6);
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 300px;
+  overflow-x: auto;
+}
+.teamScore {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.teamScore span { width: 70px; font-size: 14px; }
+.scoreBtn {
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  margin: 2px;
+  cursor: pointer;
+  border: none;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+}
+.greenBtn { background-color: green; }
+.redBtn { background-color: red; }
+#nextScoreBtn { margin-left: 5px; padding: 5px 10px; cursor: pointer; }
 
-  #teamContainer input, #teamContainer button {
-    margin: 2px 0;
-    width: 100%;
-    box-sizing: border-box;
-    font-size: 14px;
-  }
-
-  #teamsList {
-    margin-top: 10px;
-  }
-
-  .teamItem {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 5px;
-    font-size: 14px;
-  }
-
-  .removeTeamBtn {
-    background: red;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 12px;
-    padding: 2px 5px;
-    border-radius: 4px;
-  }
-
-  /* Score Tracker */
-  #scoreContainer {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1000;
-    background: rgba(0,0,0,0.6);
-    padding: 10px;
-    border-radius: 10px;
-    max-width: 300px;
-    overflow-x: auto;
-  }
-
-  .teamScore {
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-    margin-bottom: 5px;
-  }
-
-  .teamScore span {
-    width: 70px;
-    font-size: 14px;
-  }
-
-  .scoreBtn {
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    margin: 2px;
-    cursor: pointer;
-    border: none;
-    color: white;
-    font-weight: bold;
-    font-size: 12px;
-  }
-
-  .greenBtn { background-color: green; }
-  .redBtn { background-color: red; }
-
-  #nextScoreBtn {
-    margin-left: 5px;
-    padding: 5px 10px;
-    cursor: pointer;
-  }
-
-  /* Question & Answer */
-  #questionSection {
-    text-align: center;
-    margin-top: 400px;
-  }
-
-  #roundName {
-    font-size: 28px;
-    margin-bottom: 20px;
-  }
-
-  #currentQuestion {
-    font-size: 36px;
-    margin-bottom: 20px;
-  }
-
-  #currentAnswer {
-    font-size: 36px;
-    margin-top: 20px;
-  }
-
-  .hidden { display: none; }
+/* Question & Answer */
+#questionSection {
+  text-align: center;
+  margin-top: 400px;
+}
+#roundName { font-size: 28px; margin-bottom: 20px; }
+#currentQuestion { font-size: 36px; margin-bottom: 20px; }
+#currentAnswer { font-size: 36px; margin-top: 20px; }
+.hidden { display: none; }
 </style>
 </head>
 <body>
 
-<!-- Question Set Dropdown -->
+<!-- Question Set -->
 <div id="questionSetContainer">
   <label for="questionSetSelect">Select Question Set:</label>
   <select id="questionSetSelect">
@@ -163,8 +130,9 @@
   </select>
 </div>
 
-<!-- Launch Game -->
+<!-- Launch Buttons -->
 <div id="launchContainer">
+  <button id="launchRulesBtn">Launch Rules</button>
   <button id="launchGameBtn" disabled>Launch Game</button>
 </div>
 
@@ -193,3 +161,4 @@
 <script src="script.js"></script>
 </body>
 </html>
+
