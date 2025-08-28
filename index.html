@@ -59,13 +59,9 @@ function updatePlayerScreen() {
   answerEl.style.display = showAnswer ? 'block' : 'none';
 }
 
-// Listen for changes from host
-window.addEventListener('storage', updatePlayerScreen);
-
-// Initial load
-updatePlayerScreen();
+// Polling every 200ms to sync with host
+setInterval(updatePlayerScreen, 200);
 </script>
 
 </body>
 </html>
-
