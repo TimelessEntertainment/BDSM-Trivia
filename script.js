@@ -1,3 +1,4 @@
+// Game data
 let gameData = [];
 let currentRoundIndex = 0;
 let currentQuestionIndex = 0;
@@ -7,7 +8,6 @@ const roundNameEl = document.getElementById('roundName');
 const currentQuestionEl = document.getElementById('currentQuestion');
 const currentAnswerEl = document.getElementById('currentAnswer');
 const showAnswerBtn = document.getElementById('showAnswerBtn');
-
 const questionSetSelect = document.getElementById('questionSetSelect');
 
 // Teams
@@ -21,9 +21,8 @@ const scoreContainer = document.getElementById('scores');
 const nextScoreBtn = document.getElementById('nextScoreBtn');
 
 let teams = [];
-let currentScoreTeamIndex = 0;
 
-// Load questions
+// Load questions from JSON
 function loadQuestions(file) {
   fetch(file)
     .then(response => response.json())
@@ -36,7 +35,7 @@ function loadQuestions(file) {
     .catch(err => console.error("Error loading questions:", err));
 }
 
-// Dropdown change
+// Change question set
 questionSetSelect.addEventListener('change', function() {
   loadQuestions(this.value);
 });
@@ -44,6 +43,7 @@ questionSetSelect.addEventListener('change', function() {
 // Update host screen
 function updateHost() {
   if (!gameData[currentRoundIndex]) return;
+
   const round = gameData[currentRoundIndex];
   const questionObj = round.questions[currentQuestionIndex];
 
@@ -52,14 +52,11 @@ function updateHost() {
   currentAnswerEl.textContent = questionObj.answer;
   currentAnswerEl.classList.add('hidden');
 
-  localStorage.setItem('currentRound', currentRoundIndex);
-  localStorage.setItem('currentQuestion', currentQuestionIndex);
-  localStorage.setItem('showAnswer', 'false');
-
+  renderTeams();
   renderScores();
 }
 
-// Show answer button
+// Show/hide answer
 showAnswerBtn.addEventListener('click', () => {
   currentAnswerEl.classList.toggle('hidden');
 });
@@ -83,7 +80,11 @@ function renderTeams() {
   teams.forEach((team, index) => {
     const div = document.createElement('div');
     div.classList.add('teamItem');
-    div.textContent = `${team.name} (${team.players} players)`;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = `${team.name} (${team.players})`;
+    div.appendChild(nameSpan);
+
     const removeBtn = document.createElement('button');
     removeBtn.textContent = 'X';
     removeBtn.classList.add('removeTeamBtn');
@@ -93,6 +94,7 @@ function renderTeams() {
       renderScores();
     });
     div.appendChild(removeBtn);
+
     teamsList.appendChild(div);
   });
 }
@@ -100,7 +102,7 @@ function renderTeams() {
 // Render score buttons
 function renderScores() {
   scoreContainer.innerHTML = '';
-  teams.forEach((team, teamIndex) => {
+  teams.forEach((team, index) => {
     const div = document.createElement('div');
     div.classList.add('teamScore');
 
@@ -108,6 +110,7 @@ function renderScores() {
     nameSpan.textContent = team.name;
     div.appendChild(nameSpan);
 
+    // Green buttons (correct)
     [5,3,1].forEach(points => {
       const greenBtn = document.createElement('button');
       greenBtn.className = 'scoreBtn greenBtn';
@@ -117,7 +120,10 @@ function renderScores() {
         renderScores();
       });
       div.appendChild(greenBtn);
+    });
 
+    // Red buttons (wrong)
+    [5,3,1].forEach(points => {
       const redBtn = document.createElement('button');
       redBtn.className = 'scoreBtn redBtn';
       redBtn.textContent = points;
@@ -146,5 +152,6 @@ nextScoreBtn.addEventListener('click', () => {
   updateHost();
 });
 
-// Initial load
+// Initial load of default set
 loadQuestions(questionSetSelect.value);
+
