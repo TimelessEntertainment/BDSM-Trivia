@@ -1,91 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>BDSM Trivia - Player View</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-image: url('background.jpg'); /* same background as host */
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      color: white;
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      width: 100vw;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BDSM Trivia Player</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: url('background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+    text-align: center;
+  }
 
-    #roundName {
-      font-size: 3em;
-      margin-bottom: 30px;
-    }
+  #roundName {
+    font-size: 36px;
+    margin-top: 100px;
+  }
 
-    #currentQuestion {
-      font-size: 2.5em;
-      margin-bottom: 30px;
-    }
+  #currentQuestion {
+    font-size: 48px;
+    margin-top: 30px;
+  }
 
-    #currentAnswer {
-      font-size: 2.5em;
-      margin-top: 20px;
-    }
-
-    .hidden { display: none; }
-  </style>
+  #currentAnswer {
+    font-size: 48px;
+    margin-top: 30px;
+  }
+</style>
 </head>
 <body>
-  <h1 id="roundName">Loading Round...</h1>
-  <h2 id="currentQuestion">Loading Question...</h2>
-  <p id="currentAnswer" class="hidden"></p>
 
-  <script>
-    // --- GET HOST DATA FROM localStorage ---
-    function updatePlayerView() {
-      const gameData = JSON.parse(localStorage.getItem('gameData') || '[]');
-      const currentRoundIndex = parseInt(localStorage.getItem('currentRound') || '0');
-      const currentQuestionIndex = parseInt(localStorage.getItem('currentQuestion') || '0');
-      const showAnswer = localStorage.getItem('showAnswer') === 'true';
+<div id="roundName">Round 1 Question 1</div>
+<div id="currentQuestion">Loading question...</div>
+<div id="currentAnswer" class="hidden">Answer</div>
 
-      if(gameData.length === 0) return;
+<script>
+const roundNameEl = document.getElementById('roundName');
+const questionEl = document.getElementById('currentQuestion');
+const answerEl = document.getElementById('currentAnswer');
 
-      const round = gameData[currentRoundIndex];
-      const questionObj = round.questions[currentQuestionIndex];
+// Update function
+function updatePlayerScreen() {
+  const gameData = JSON.parse(localStorage.getItem('gameData') || '[]');
+  const roundIndex = parseInt(localStorage.getItem('currentRound')) || 0;
+  const questionIndex = parseInt(localStorage.getItem('currentQuestion')) || 0;
+  const showAnswer = localStorage.getItem('showAnswer') === 'true';
 
-      document.getElementById('roundName').textContent = `${round.round} - Question ${currentQuestionIndex + 1}`;
-      document.getElementById('currentQuestion').textContent = questionObj.question;
+  if (!gameData[roundIndex]) return;
 
-      const answerEl = document.getElementById('currentAnswer');
-      answerEl.textContent = questionObj.answer;
-      if(showAnswer){
-        answerEl.classList.remove('hidden');
-      } else {
-        answerEl.classList.add('hidden');
-      }
-    }
+  const round = gameData[roundIndex];
+  const questionObj = round.questions[questionIndex];
 
-    // Initial load
-    updatePlayerView();
+  roundNameEl.textContent = `${round.round} Question ${questionIndex + 1}`;
+  questionEl.textContent = questionObj.question;
+  answerEl.textContent = questionObj.answer;
+  answerEl.style.display = showAnswer ? 'block' : 'none';
+}
 
-    // --- LISTEN FOR HOST UPDATES ---
-    window.addEventListener('storage', (e) => {
-      if(['currentRound','currentQuestion','showAnswer','gameData'].includes(e.key)){
-        updatePlayerView();
-      }
-    });
+// Listen for changes from host
+window.addEventListener('storage', updatePlayerScreen);
 
-    // --- AUTO-START WHEN HOST STARTS GAME ---
-    window.addEventListener('storage', (e) => {
-      if(e.key === 'gameStarted' && e.newValue === 'true'){
-        updatePlayerView();
-      }
-    });
-  </script>
+// Initial load
+updatePlayerScreen();
+</script>
+
 </body>
 </html>
+
