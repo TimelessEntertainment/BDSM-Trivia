@@ -20,7 +20,10 @@ const teamsList = document.getElementById('teamsList');
 const scoreContainer = document.getElementById('scores');
 const nextScoreBtn = document.getElementById('nextScoreBtn');
 
+const launchGameBtn = document.getElementById('launchGameBtn');
+
 let teams = [];
+let playerWindow = null;
 
 // Load questions from JSON
 function loadQuestions(file) {
@@ -28,16 +31,30 @@ function loadQuestions(file) {
     .then(response => response.json())
     .then(data => {
       gameData = data;
+      localStorage.setItem('gameData', JSON.stringify(gameData)); // for player screen
       currentRoundIndex = 0;
       currentQuestionIndex = 0;
+      localStorage.setItem('currentRound', currentRoundIndex);
+      localStorage.setItem('currentQuestion', currentQuestionIndex);
+      localStorage.setItem('showAnswer', 'false');
       updateHost();
+      launchGameBtn.disabled = false; // enable launch
     })
     .catch(err => console.error("Error loading questions:", err));
 }
 
-// Change question set
-questionSetSelect.addEventListener('change', function() {
-  loadQuestions(this.value);
+// Question Set Change
+questionSetSelect.addEventListener('change', () => {
+  loadQuestions(questionSetSelect.value);
+});
+
+// Launch Game
+launchGameBtn.addEventListener('click', () => {
+  if (!playerWindow || playerWindow.closed) {
+    playerWindow = window.open('index.html', 'PlayerScreen', 'width=1280,height=720');
+  } else {
+    playerWindow.focus();
+  }
 });
 
 // Update host screen
@@ -52,6 +69,11 @@ function updateHost() {
   currentAnswerEl.textContent = questionObj.answer;
   currentAnswerEl.classList.add('hidden');
 
+  // Save state to localStorage for players
+  localStorage.setItem('currentRound', currentRoundIndex);
+  localStorage.setItem('currentQuestion', currentQuestionIndex);
+  localStorage.setItem('showAnswer', 'false');
+
   renderTeams();
   renderScores();
 }
@@ -59,9 +81,11 @@ function updateHost() {
 // Show/hide answer
 showAnswerBtn.addEventListener('click', () => {
   currentAnswerEl.classList.toggle('hidden');
+  const show = !currentAnswerEl.classList.contains('hidden');
+  localStorage.setItem('showAnswer', show ? 'true' : 'false');
 });
 
-// Add team
+// Teams
 addTeamBtn.addEventListener('click', () => {
   const name = teamNameInput.value.trim();
   const players = parseInt(teamPlayersInput.value);
@@ -74,7 +98,6 @@ addTeamBtn.addEventListener('click', () => {
   renderScores();
 });
 
-// Render teams list with delete button
 function renderTeams() {
   teamsList.innerHTML = '';
   teams.forEach((team, index) => {
@@ -89,7 +112,7 @@ function renderTeams() {
     removeBtn.textContent = 'X';
     removeBtn.classList.add('removeTeamBtn');
     removeBtn.addEventListener('click', () => {
-      teams.splice(index, 1);
+      teams.splice(index,1);
       renderTeams();
       renderScores();
     });
@@ -99,10 +122,10 @@ function renderTeams() {
   });
 }
 
-// Render score buttons
+// Score Tracker
 function renderScores() {
   scoreContainer.innerHTML = '';
-  teams.forEach((team, index) => {
+  teams.forEach((team, tIndex) => {
     const div = document.createElement('div');
     div.classList.add('teamScore');
 
@@ -110,32 +133,27 @@ function renderScores() {
     nameSpan.textContent = team.name;
     div.appendChild(nameSpan);
 
-    // Green buttons (correct)
     [5,3,1].forEach(points => {
       const greenBtn = document.createElement('button');
-      greenBtn.className = 'scoreBtn greenBtn';
       greenBtn.textContent = points;
-      greenBtn.addEventListener('click', () => {
-        team.score += points;
-        renderScores();
-      });
+      greenBtn.classList.add('scoreBtn','greenBtn');
+      greenBtn.addEventListener('click', () => addScore(tIndex, points));
       div.appendChild(greenBtn);
-    });
 
-    // Red buttons (wrong)
-    [5,3,1].forEach(points => {
       const redBtn = document.createElement('button');
-      redBtn.className = 'scoreBtn redBtn';
       redBtn.textContent = points;
-      redBtn.addEventListener('click', () => {
-        team.score -= points;
-        renderScores();
-      });
+      redBtn.classList.add('scoreBtn','redBtn');
+      redBtn.addEventListener('click', () => addScore(tIndex, -points));
       div.appendChild(redBtn);
     });
 
     scoreContainer.appendChild(div);
   });
+}
+
+function addScore(teamIndex, points) {
+  teams[teamIndex].score += points;
+  renderScores();
 }
 
 // Next question
@@ -144,14 +162,11 @@ nextScoreBtn.addEventListener('click', () => {
   if (currentQuestionIndex >= gameData[currentRoundIndex].questions.length) {
     currentQuestionIndex = 0;
     currentRoundIndex++;
-    if (currentRoundIndex >= gameData.length) {
-      alert('Game Over!');
-      return;
-    }
+    if (currentRoundIndex >= gameData.length) currentRoundIndex = 0; // loop
   }
   updateHost();
 });
 
-// Initial load of default set
+// Initial load
 loadQuestions(questionSetSelect.value);
 
