@@ -20,21 +20,29 @@
     top: 10px;
     left: 10px;
     z-index: 1000;
-    font-size: 18px;
+    font-size: 16px;
+    background: rgba(0,0,0,0.6);
+    padding: 5px 8px;
+    border-radius: 5px;
   }
 
   /* Team Signup */
   #teamContainer {
     position: absolute;
-    top: 50px;
+    top: 60px;
     left: 10px;
-    width: 200px;
+    width: 180px;
     z-index: 1000;
+    background: rgba(0,0,0,0.6);
+    padding: 10px;
+    border-radius: 8px;
   }
 
-  #teamContainer input {
+  #teamContainer input, #teamContainer button {
     margin: 2px 0;
     width: 100%;
+    box-sizing: border-box;
+    font-size: 14px;
   }
 
   #teamsList {
@@ -42,17 +50,21 @@
   }
 
   .teamItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 5px;
+    font-size: 14px;
   }
 
   .removeTeamBtn {
-    margin-left: 5px;
     background: red;
     color: white;
     border: none;
     cursor: pointer;
     font-size: 12px;
-    padding: 2px 4px;
+    padding: 2px 5px;
+    border-radius: 4px;
   }
 
   /* Score Tracker */
@@ -65,27 +77,31 @@
     padding: 10px;
     border-radius: 10px;
     max-width: 300px;
+    overflow-x: auto; /* prevent buttons from wrapping */
   }
 
   .teamScore {
     display: flex;
     align-items: center;
+    flex-wrap: nowrap; /* keep buttons in one line */
     margin-bottom: 5px;
   }
 
   .teamScore span {
-    width: 80px;
+    width: 70px;
+    font-size: 14px;
   }
 
   .scoreBtn {
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     margin: 2px;
     cursor: pointer;
     border: none;
     color: white;
     font-weight: bold;
+    font-size: 12px;
   }
 
   .greenBtn { background-color: green; }
@@ -100,7 +116,7 @@
   /* Question & Answer */
   #questionSection {
     text-align: center;
-    margin-top: 150px;
+    margin-top: 180px;
   }
 
   #roundName {
@@ -158,3 +174,4 @@
 <script src="script.js"></script>
 </body>
 </html>
+
