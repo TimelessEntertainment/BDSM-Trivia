@@ -1,7 +1,9 @@
-// Game data
 let gameData = [];
 let currentRoundIndex = 0;
 let currentQuestionIndex = 0;
+let teams = [];
+let playerWindow = null;
+let rulesWindow = null;
 
 // Elements
 const roundNameEl = document.getElementById('roundName');
@@ -9,46 +11,40 @@ const currentQuestionEl = document.getElementById('currentQuestion');
 const currentAnswerEl = document.getElementById('currentAnswer');
 const showAnswerBtn = document.getElementById('showAnswerBtn');
 const questionSetSelect = document.getElementById('questionSetSelect');
+const launchGameBtn = document.getElementById('launchGameBtn');
+const launchRulesBtn = document.getElementById('launchRulesBtn');
 
-// Teams
+// Team elements
 const teamNameInput = document.getElementById('teamNameInput');
 const teamPlayersInput = document.getElementById('teamPlayersInput');
 const addTeamBtn = document.getElementById('addTeamBtn');
 const teamsList = document.getElementById('teamsList');
 
-// Score Tracker
+// Score tracker
 const scoreContainer = document.getElementById('scores');
 const nextScoreBtn = document.getElementById('nextScoreBtn');
 
-const launchGameBtn = document.getElementById('launchGameBtn');
-
-let teams = [];
-let playerWindow = null;
-
-// Load questions from JSON
+// --- Load Questions ---
 function loadQuestions(file) {
-  fetch(file)
-    .then(response => response.json())
+  return fetch(file)
+    .then(res => res.json())
     .then(data => {
       gameData = data;
-      localStorage.setItem('gameData', JSON.stringify(gameData)); // for player screen
+      localStorage.setItem('gameData', JSON.stringify(gameData));
       currentRoundIndex = 0;
       currentQuestionIndex = 0;
       localStorage.setItem('currentRound', currentRoundIndex);
       localStorage.setItem('currentQuestion', currentQuestionIndex);
       localStorage.setItem('showAnswer', 'false');
       updateHost();
-      launchGameBtn.disabled = false; // enable launch
-    })
-    .catch(err => console.error("Error loading questions:", err));
+      launchGameBtn.disabled = false; // enable Launch Game
+    });
 }
 
-// Question Set Change
-questionSetSelect.addEventListener('change', () => {
-  loadQuestions(questionSetSelect.value);
-});
+// Question set change
+questionSetSelect.addEventListener('change', () => loadQuestions(questionSetSelect.value));
 
-// Launch Game
+// --- Launch Player Screen ---
 launchGameBtn.addEventListener('click', () => {
   if (!playerWindow || playerWindow.closed) {
     playerWindow = window.open('index.html', 'PlayerScreen', 'width=1280,height=720');
@@ -57,7 +53,16 @@ launchGameBtn.addEventListener('click', () => {
   }
 });
 
-// Update host screen
+// --- Launch Rules Screen ---
+launchRulesBtn.addEventListener('click', () => {
+  if (!rulesWindow || rulesWindow.closed) {
+    rulesWindow = window.open('rules.html', 'RulesScreen', 'width=1280,height=720');
+  } else {
+    rulesWindow.focus();
+  }
+});
+
+// --- Update Host ---
 function updateHost() {
   if (!gameData[currentRoundIndex]) return;
 
@@ -69,7 +74,6 @@ function updateHost() {
   currentAnswerEl.textContent = questionObj.answer;
   currentAnswerEl.classList.add('hidden');
 
-  // Save state to localStorage for players
   localStorage.setItem('currentRound', currentRoundIndex);
   localStorage.setItem('currentQuestion', currentQuestionIndex);
   localStorage.setItem('showAnswer', 'false');
@@ -78,14 +82,14 @@ function updateHost() {
   renderScores();
 }
 
-// Show/hide answer
+// --- Show/Hide Answer ---
 showAnswerBtn.addEventListener('click', () => {
   currentAnswerEl.classList.toggle('hidden');
   const show = !currentAnswerEl.classList.contains('hidden');
   localStorage.setItem('showAnswer', show ? 'true' : 'false');
 });
 
-// Teams
+// --- Teams ---
 addTeamBtn.addEventListener('click', () => {
   const name = teamNameInput.value.trim();
   const players = parseInt(teamPlayersInput.value);
@@ -112,7 +116,7 @@ function renderTeams() {
     removeBtn.textContent = 'X';
     removeBtn.classList.add('removeTeamBtn');
     removeBtn.addEventListener('click', () => {
-      teams.splice(index,1);
+      teams.splice(index, 1);
       renderTeams();
       renderScores();
     });
@@ -122,7 +126,7 @@ function renderTeams() {
   });
 }
 
-// Score Tracker
+// --- Score Tracker ---
 function renderScores() {
   scoreContainer.innerHTML = '';
   teams.forEach((team, tIndex) => {
@@ -156,17 +160,17 @@ function addScore(teamIndex, points) {
   renderScores();
 }
 
-// Next question
+// --- Next Question ---
 nextScoreBtn.addEventListener('click', () => {
   currentQuestionIndex++;
   if (currentQuestionIndex >= gameData[currentRoundIndex].questions.length) {
     currentQuestionIndex = 0;
     currentRoundIndex++;
-    if (currentRoundIndex >= gameData.length) currentRoundIndex = 0; // loop
+    if (currentRoundIndex >= gameData.length) currentRoundIndex = 0;
   }
   updateHost();
 });
 
-// Initial load
+// --- Initial Load ---
 loadQuestions(questionSetSelect.value);
 
