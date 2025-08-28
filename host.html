@@ -26,10 +26,24 @@
     border-radius: 5px;
   }
 
+  /* Launch Game Button */
+  #launchContainer {
+    position: absolute;
+    top: 120px;
+    left: 10px;
+    z-index: 1000;
+  }
+
+  #launchContainer button {
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
   /* Team Signup */
   #teamContainer {
     position: absolute;
-    top: 60px;
+    top: 180px;
     left: 10px;
     width: 180px;
     z-index: 1000;
@@ -77,13 +91,13 @@
     padding: 10px;
     border-radius: 10px;
     max-width: 300px;
-    overflow-x: auto; /* prevent buttons from wrapping */
+    overflow-x: auto;
   }
 
   .teamScore {
     display: flex;
     align-items: center;
-    flex-wrap: nowrap; /* keep buttons in one line */
+    flex-wrap: nowrap;
     margin-bottom: 5px;
   }
 
@@ -116,7 +130,7 @@
   /* Question & Answer */
   #questionSection {
     text-align: center;
-    margin-top: 180px;
+    margin-top: 400px;
   }
 
   #roundName {
@@ -147,6 +161,11 @@
     <option value="questions2.json">Set 2</option>
     <option value="questions3.json">Set 3</option>
   </select>
+</div>
+
+<!-- Launch Game -->
+<div id="launchContainer">
+  <button id="launchGameBtn" disabled>Launch Game</button>
 </div>
 
 <!-- Team Sign-Up -->
